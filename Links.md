@@ -7,7 +7,7 @@ https://www.thingiverse.com/thing:4892947
 
 https://www.youtube.com/watch?v=CLMRyQPhmR8
 
--Instalacion de ubunto en Rapsberry pi 4
+- Instalacion de ubunto en Rapsberry pi 4
 
 https://www.youtube.com/watch?v=fjb7pD5GYDo
 
