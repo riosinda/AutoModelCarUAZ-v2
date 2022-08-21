@@ -9,7 +9,7 @@ Dr. José María Celaya Padilla
 
 José Indalecio Ríos Ríos (joseindalecio@uaz.edu.mx)
 
-Andreé Mauricio Nava (navandree00@gmail.com)
+Andreé Mauricio Nava Garcia (navandree00@gmail.com)
 
 Edgar Ramírez Acuña (edgarramirezac@gmail.com)
 
