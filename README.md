@@ -6,8 +6,13 @@ de la Universidad Autonoma de Zacatecas (UAZ)
 ## Desarrolladores del proyecto
 
 Dr. José María Celaya Padilla
-José Indalecio Ríos Ríos
-Andreé Mauricio Nava
-Edgar Ramírez Acuña
-Alejandra Isabel Medina Diaz
+
+José Indalecio Ríos Ríos (joseindalecio@uaz.edu.mx)
+
+Andreé Mauricio Nava (navandree00@gmail.com)
+
+Edgar Ramírez Acuña (edgarramirezac@gmail.com)
+
+Alejandra Isabel Medina Diaz (39203930@uaz.edu.mx)
+
 Manuel Alejandro Garcia Tovar
