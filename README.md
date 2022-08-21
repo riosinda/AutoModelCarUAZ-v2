@@ -15,4 +15,4 @@ Edgar Ramírez Acuña (edgarramirezac@gmail.com)
 
 Alejandra Isabel Medina Diaz (39203930@uaz.edu.mx)
 
-Manuel Alejandro Garcia Tovar
+Manuel Alejandro Garcia Tovar (alejandrotovar0711@gmail.com)
