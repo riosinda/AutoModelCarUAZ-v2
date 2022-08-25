@@ -1,5 +1,6 @@
 #include <Servo.h>
 
+
 Servo servoMotor;
 
 int data;
