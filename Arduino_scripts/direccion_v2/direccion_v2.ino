@@ -16,7 +16,7 @@ void setup() {
 void loop() {
 
   if (Serial.available() > 0){
-      String str = Serial.readStringUntil('\n');// leer lo que se resive por el puerto serial
+      String str = Serial.readStringUntil('\n');// leer lo que se recibe por el puerto serial
       data = str.toInt(); // convertir a entero lo que se lee en el puerto serial
       Serial.println(data); // imprimir el entero en el puerto serial
       if(data>=70 && data<=110){ // condicion para no pasar los limites del servo y evitar forzarlo
