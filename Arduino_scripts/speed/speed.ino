@@ -7,7 +7,7 @@ void setup() {
   
   Serial.begin(9600);
   ESC.attach(9,1000,2000); // Attach the ESC on pin 9 (pin, min pulse width, max pulse width in microseconds) 
-  ESC.write(0);
+  ESC.write(90);
 }
 
 void loop() {
@@ -22,7 +22,6 @@ void loop() {
   }     
 }
 
-//90 es alto
-//máximo derecho: 180
-//>90 adelante
-//<90 atras 87 reversa controlada
+// 0<<90 reversa
+// 90<<180 frente
+// 90 alto total
