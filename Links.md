@@ -14,3 +14,7 @@ https://www.youtube.com/watch?v=fjb7pD5GYDo
 - Comunicacion serial desde python a arduino
 
 https://www.youtube.com/watch?v=HDzx8j7A59o&t=1549s
+
+- Relacion de grados con ancho de pulso para velocidad
+
+https://electronics.stackexchange.com/questions/474764/esc-signal-standard-and-pwm-frequency
