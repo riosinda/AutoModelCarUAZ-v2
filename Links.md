@@ -14,6 +14,7 @@ https://www.youtube.com/watch?v=fjb7pD5GYDo
 - Comunicacion serial desde python a arduino
 
 https://www.youtube.com/watch?v=HDzx8j7A59o&t=1549s
+https://www.youtube.com/watch?v=qWESWDKYWFU
 
 - Relacion de grados con ancho de pulso para velocidad
 
