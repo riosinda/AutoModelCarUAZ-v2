@@ -53,6 +53,9 @@ if __name__ == '__main__':
             vector = serArduino.readline()
             vector = vector.split(',')
             
+            cadena = vector[7]
+            cadena = cadena[:-2]
+            vector[7] = cadena
             print(vector)
             print(len(vector))
             print(sw)
