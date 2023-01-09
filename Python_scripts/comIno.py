@@ -51,6 +51,9 @@ if __name__ == '__main__':
             serArduino = serial.Serial("/dev/ttyUSB1", 115200, timeout=1)
             vector = serArduino.readline()
             vector = vector.split(',')
+            cadena=vector[7]
+            cadena=cadena[:-2]
+            vector[7]=cadena
             print(vector)
             #print(vector[0])
             
