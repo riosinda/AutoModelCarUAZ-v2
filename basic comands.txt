@@ -1,0 +1,13 @@
+COMANDOS BASICOS
+rm "file name"			borrar archivo
+nano "file name"			editar archivo
+ls					ver contenido de la ubicacion
+cd "folder name"			entrar en carpeta								
+cd..					retroceder en carpeta
+python "file name"		correr codigos de python
+
+
+COMANDOS ROS
+roslaunch rplidar_ros rplidar.launch			inicializar el lidar
+rostopic								imprimir informacion sobre los topics de ROS
+rosnode kill / "procces name"					detiene el proceso que se  esta ejecutando
