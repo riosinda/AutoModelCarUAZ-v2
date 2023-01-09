@@ -17,7 +17,7 @@ class datos:
     self.auto_gx = rospy.Publisher('gx', Int16, queue_size=10)
     self.auto_gy = rospy.Publisher('gy', Int16, queue_size=10)
     self.auto_gz = rospy.Publisher('gz', Int16, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
+    rospy.init_node('tuCola', anonymous=True)
     #self.serArduino = serial.Serial("/dev/ttyUSB1",115200,timeout=1)
 
   def sendNodes(self):
@@ -46,24 +46,23 @@ class datos:
        self.auto_dist_str = vector[7]
         
 if __name__ == '__main__':
+    sw=0
     try:
         while True:
             serArduino = serial.Serial("/dev/ttyUSB1", 115200, timeout=1)
             vector = serArduino.readline()
             vector = vector.split(',')
+            
             print(vector)
-            #print(vector[0])
+            print(len(vector))
+            print(sw)
+            sw = sw + 1
             
-            # ic = datos()
-            # ic.resiveNodes(vector)
-            # ic.sendNodes()
-            # rospy.spin()
-            
-            # if len(vector) == 8:
-            #     ic = datos()
-            #     ic.resiveNodes(vector)
-            #     ic.sendNodes()
-            #     rospy.spin()
+            if len(vector) == 8:
+                ic = datos()
+                ic.resiveNodes(vector)
+                ic.sendNodes()
+                rospy.spin()
     
     except rospy.ROSInterruptException:
         pass
