@@ -149,6 +149,7 @@ def draw_lane_lines(image, lines, color=[255, 255, 255], thickness=8):
     return line_image
 
 class LaneDetector:
+    global gir
     def __init__(self):
         self.left_lines  = deque(maxlen=QUEUE_LENGTH)
         self.right_lines = deque(maxlen=QUEUE_LENGTH)
@@ -193,7 +194,7 @@ class LaneDetector:
         print(gir)
         dire.publish(gir)
 
-        return draw_lane_lines(image, (left_line, right_line)),left_line, right_line
+        return gir
 
 class image_converter:
     global bridge
@@ -225,7 +226,7 @@ def start(args):
     
     ic = image_converter()
     vel=30
-    dire=dire
+    dire=ic
 
     serArduino = serial.Serial("/dev/ttyUSB1",115200,timeout=1)
 
