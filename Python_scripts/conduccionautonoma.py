@@ -222,7 +222,8 @@ def start(args):
     global dire
     global serArduino
     global enviar
-    
+    vel=30
+    dire=90
     ic = image_converter()
 
     serArduino = serial.Serial("/dev/ttyUSB1",115200,timeout=1)
