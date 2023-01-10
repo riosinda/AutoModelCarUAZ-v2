@@ -222,12 +222,14 @@ def start(args):
     global dire
     global serArduino
     global enviar
-    vel=30
-    dire=90
+    
     ic = image_converter()
+    vel=30
+    dire=dire
 
     serArduino = serial.Serial("/dev/ttyUSB1",115200,timeout=1)
-    enviar = str(vel)+"*"+str(dire)
+
+    enviar = str(dire)+"*"+str(vel)
     serArduino.write(b''+enviar)
     
     rospy.init_node('scan_values','image_converter', anonymous=True)
