@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# license removed for brevity
+
 import rospy
 import numpy as np
 import cv2 as cv
@@ -8,10 +8,12 @@ from cv_bridge import CvBridge
 
 bridge = CvBridge()
 
-def talker():
+def get_image():
+    
     cap = cv.VideoCapture(0)
-    pub1 = rospy.Publisher('Imagen_RGB', Image)
-    pub2 = rospy.Publisher('Imagen_Grey', Image)
+    pub1 = rospy.Publisher('Imagen_RGB', Image, queue_size=10)
+    pub2 = rospy.Publisher('Imagen_Grey', Image, queue_size=10)
+    rospy.loginfo("Setting up the node...")
     rospy.init_node('Convert_image')
     rate = rospy.Rate(30) # 30hz
     
@@ -29,6 +31,6 @@ def talker():
          
 if __name__ == '__main__':
      try:
-         talker()
+         get_image()
      except rospy.ROSInterruptException:
          pass
