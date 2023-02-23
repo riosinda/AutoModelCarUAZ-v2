@@ -7,14 +7,14 @@ def talker(ax_str, ay_str, az_str, gx_str, gy_str, gz_str, rpm_str, dist_str):
     """
     Iniciamos el nodo con los topics de los sensores
     """
-    auto_ax = rospy.Publisher('auto/giroscopio/ax', String, queue_size=10)
-    auto_ay = rospy.Publisher('auto/giroscopio/ay', String, queue_size=10)
-    auto_az = rospy.Publisher('auto/giroscopio/az', String, queue_size=10)
-    auto_gx = rospy.Publisher('auto/giroscopio/gx', String, queue_size=10)
-    auto_gy = rospy.Publisher('auto/giroscopio/gy', String, queue_size=10)
-    auto_gz = rospy.Publisher('auto/giroscopio/gz', String, queue_size=10)
-    auto_rpm = rospy.Publisher('auto/rpm', String, queue_size=10)
-    auto_dist = rospy.Publisher('auto/dist', String, queue_size=10)
+    auto_ax = rospy.Publisher('auto/imo/ax', String, queue_size=10)
+    auto_ay = rospy.Publisher('auto/imo/ay', String, queue_size=10)
+    auto_az = rospy.Publisher('auto/imo/az', String, queue_size=10)
+    auto_gx = rospy.Publisher('auto/imo/gx', String, queue_size=10)
+    auto_gy = rospy.Publisher('auto/imo/gy', String, queue_size=10)
+    auto_gz = rospy.Publisher('auto/imo/gz', String, queue_size=10)
+    auto_rpm = rospy.Publisher('auto/taco/rpm', String, queue_size=10)
+    auto_dist = rospy.Publisher('auto/taco/dist', String, queue_size=10)
     rospy.init_node('sensores', anonymous=True)
     
     #Se publican los valores obtenidos por el arduino.
