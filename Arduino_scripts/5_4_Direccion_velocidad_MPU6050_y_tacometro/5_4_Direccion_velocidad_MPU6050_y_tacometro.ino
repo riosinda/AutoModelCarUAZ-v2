@@ -43,8 +43,8 @@ bool Bdato = true;
 int data_vel;
 int entrada = 0;
 int data_dir = 0;
-int max_izquierda = 70;  // valor minimo de la izquierda dir
-int max_derecha = 110;   // valor maximo de la derecha dir
+int max_izquierda = 55;  // valor minimo de la izquierda dir
+int max_derecha = 125;   // valor maximo de la derecha dir
 int centro = 90;         // valor del centro dir
 int dat22 = 0;
 int sw=1;
