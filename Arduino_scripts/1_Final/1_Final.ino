@@ -1,7 +1,7 @@
 #include "I2Cdev.h"
 #include <Servo.h>
-#include "MPU6050_6Axis_MotionApps20.h"
 #include <Adafruit_NeoPixel.h>
+#include "MPU6050_6Axis_MotionApps20.h"
 
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 #include "Wire.h"
@@ -11,12 +11,15 @@ Servo ESC;
 Servo direccion;
 MPU6050 mpu;
 
-#define OUTPUT_READABLE_YAWPITCHROLL
-
+#define PIN 8
+#define NUMPIXELS 10
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
-#define LED_PIN 13       // (Arduino is 13, Teensy is 11, Teensy++ is 6)
-bool blinkState = false;
 
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+char command;
+char NumberColor;
+
+// MPU control/status vars
 bool dmpReady = false;   // set true if DMP init was successful
 uint8_t mpuIntStatus;    // holds actual interrupt status byte from MPU
 uint8_t devStatus;       // return status after each device operation (0 = success, !0 = error)
@@ -24,6 +27,7 @@ uint16_t packetSize;     // expected DMP packet size (default is 42 bytes)
 uint16_t fifoCount;      // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64];  // FIFO storage buffer
 
+// orientation/motion vars
 Quaternion q;         // [w, x, y, z]         quaternion container
 VectorInt16 aa;       // [x, y, z]            accel sensor measurements
 VectorInt16 aaReal;   // [x, y, z]            gravity-free accel sensor measurements
@@ -34,13 +38,13 @@ float ypr[3];         // [yaw, pitch, roll]   yaw/pitch/roll container and gravi
 
 uint8_t teapotPacket[14] = { '$', 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0x00, 0x00, '\r', '\n' };
 
-volatile bool mpuInterrupt = false;  // indicates whether MPU interrupt pin has gone high
 int dato = 0;
 String cadena = "";
 String cadena2 = "";
 String cadena3 = "";
 float dat1 = 90;  // direccion
 float dat2;
+int dat3 = 0;
 bool Bdato = true;
 bool Bdatoo = true;
 int data_vel;
@@ -53,25 +57,38 @@ int dat22 = 0;
 int sw = 1;
 int var = 1;
 
+int val;
+volatile uint16_t T1Ovs2;  //
+volatile uint16_t T2OverFlow;
+int16_t Encoder;  //Counter of rising edges
+int16_t last_Encoder;
+volatile uint16_t deltatime = (volatile uint16_t)0;
+String inputLight = "";          // a string to hold incoming data
+String inputServo = "";          // a string to hold incoming data
+String inputSpeed = "";          // a string to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
+boolean servoComplete = false;
+boolean lightComplete = false;
+boolean reset_T1Ovs2 = false;
+boolean rising_edge = false;
+
+// ================================================================
+// ===               INTERRUPT DETECTION ROUTINE                ===
+// ================================================================
+
+volatile bool mpuInterrupt = false;  // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
   mpuInterrupt = true;
 }
 
-int PIN = 2;        //Pin donde está conectada la tira de leds
-int NUMPIXELS = 9;  //Número de leds conectados
-
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-int delayval = 45;  // Tiempo de espera
-String dat3 = "3";
-
 void setup() {
   Serial.begin(115200);
+  while (!Serial)
+    ;                          // wait for Serial
   ESC.attach(12, 1000, 2000);  // Attach the ESC on pin 9 (pin, min pulse width, max pulse width in microseconds)
   ESC.write(90);
   direccion.attach(10);
   direccion.write(centro);
-  pixels.begin();  // Inicialización
-  pixels.show();   // Inicializa pixels apagados
 
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
@@ -79,26 +96,27 @@ void setup() {
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
   Fastwire::setup(400, true);
 #endif
-  Serial.begin(115200);
-  while (!Serial)
-    ;  // wait for Leonardo enumeration, others continue immediately
 
+  // initialize device
   Serial.println(F("Initializing I2C devices..."));
   mpu.initialize();
   pinMode(INTERRUPT_PIN, INPUT);
 
+  // verify connection
   Serial.println(F("Testing device connections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
 
+  // load and configure the DMP
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
 
-  mpu.setXAccelOffset(-1643);
-  mpu.setYAccelOffset(589);
-  mpu.setZAccelOffset(1333);  // 1688 factory default for my test chip
-  mpu.setXGyroOffset(418);
-  mpu.setYGyroOffset(-57);
-  mpu.setZGyroOffset(69);
+  // supply your own gyro offsets here, scaled for min sensitivity
+  mpu.setXAccelOffset(1963);
+  mpu.setYAccelOffset(3691);
+  mpu.setZAccelOffset(1321);  // 1688 factory default for my test chip
+  mpu.setXGyroOffset(-7);
+  mpu.setYGyroOffset(20);
+  mpu.setZGyroOffset(17);
 
   if (devStatus == 0) {
     Serial.println(F("Enabling DMP..."));
@@ -116,11 +134,13 @@ void setup() {
     Serial.print(devStatus);
     Serial.println(F(")"));
   }
+
+  pixels.begin();  // This initializes the NeoPixel library.
 }
 
 void loop() {
-  if (!dmpReady) return;
 
+  if (!dmpReady) return;
   while (!mpuInterrupt && fifoCount < packetSize) {
     if (Serial.available() > 0) {
       if (Bdato == true && Bdatoo == true) {
@@ -135,86 +155,34 @@ void loop() {
       }
       if (Bdato == false && Bdatoo == true) {
         dato = Serial.read();
-        if (dato != '#' and dato != NULL) {  //NULL=Vacio
+        if (dato != '$' and dato != NULL) {  //NULL=Vacio
           cadena2 += (char)dato;
-        } else if (dato == '#') {
+        } else if (dato == '$') {
           dat2 = (cadena2.toFloat());  //Velocidad
-          Bdato = true;
+          Bdato = false;
           Bdatoo = false;
           cadena2 = "";
         }
       }
-      if (Bdatoo == false) {
+      if (Bdato == false && Bdatoo == false) {
         dato = Serial.read();
         if (dato != '\n' and dato != NULL) {  //NULL=Vacio
           cadena3 += (char)dato;
         } else if (dato == '\n') {
-          dat3 = cadena3;  //Direccionales
+          dat3 = (cadena3.toInt());  //luces
+          //Serial.println(dat3);
+          //lucesLED(dat3);
+          Bdato = true;
           Bdatoo = true;
           cadena3 = "";
         }
       }
     }
-    if (dat1 >= max_izquierda && dat1 <= max_derecha) {  // condicion para no pasar los limites del servo y evitar forzarlo
-      direccion.write(dat1);                             // envia el angulo al servo
-    }
 
-    dat22 = dat2 + 90;
-
-    if (dat22 >= (0) && dat22 <= 180) {  // condicion para no pasar los limites del motor y evitar forzarlo
-
-      ESC.write(dat22);  // envia la velocidad al motor
-    }
-
-    if (dat3 == "1") {  /////////////////////////////////////
-      for (int j = 3; j >= 0; j--) {
-        pixels.setPixelColor(j, 0, 0, 255);  // Brillo moderado de color rojo
-        pixels.show();                       // Envia la orden al hardware
-        delay(delayval);
-        pixels.setPixelColor(j, pixels.Color(0, 0, 0));  // Apagar
-        pixels.show();                                   // Envia la orden al hardware
-        delay(delayval);
-      }
-      if (Serial.available()) {
-        dato = Serial.read();
-        if (dato != "2" && dato != "3") {
-          dato = "1";
-        }
-      }
-    }
-
-    if (dat3 == "2") {
-      for (int i = 5; i < 9; i++) {
-        pixels.setPixelColor(i, 0, 0, 255);  // Brillo moderado de color rojo
-        pixels.show();                       // Envia la orden al hardware
-        delay(delayval);
-        pixels.setPixelColor(i, pixels.Color(0, 0, 0));  // Apagar
-        pixels.show();                                   // Envia la orden al hardware
-        delay(delayval);
-      }
-      if (Serial.available()) {
-        dato = Serial.read();
-        if (dato != "1" && dato != "3") {
-          dato = "2";
-        }
-      }
-    }
-
-    if (dat3 == "3") {
-      for (int i = 0; i < 9; i++) {
-        pixels.setPixelColor(i, pixels.Color(0, 0, 0));  // Apagar
-        pixels.show();                                   // Envia la orden al hardware
-        delay(delayval);
-      }
-      if (Serial.available()) {
-        dato = Serial.read();
-        if (dato != "1" && dato != "2") {
-          dato = "3";
-        }
-      }
-    }  ////////////////////////
+    lightControl(dat3);  // control lights of the car, this function should call befor control motor
+    servoControl(dat1);  // control servo motor
+    speedControl(dat2);
   }
-
   mpuInterrupt = false;
   mpuIntStatus = mpu.getIntStatus();
   fifoCount = mpu.getFIFOCount();
@@ -222,14 +190,20 @@ void loop() {
   if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
     mpu.resetFIFO();
     Serial.println(F("FIFO overflow!"));
+
   } else if (mpuIntStatus & 0x02) {
+    // wait for correct available data length, should be a VERY short wait
     while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
+    // read a packet from FIFO
     mpu.getFIFOBytes(fifoBuffer, packetSize);
 
+    // track FIFO count here in case there is > 1 packet available
+    // (this lets us immediately read more without waiting for an interrupt)
     fifoCount -= packetSize;
 
 #ifdef OUTPUT_READABLE_QUATERNION
+    // display quaternion values in easy matrix form: w x y z
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     Serial.print("quat\t");
     Serial.print(q.w);
@@ -242,6 +216,7 @@ void loop() {
 #endif
 
 #ifdef OUTPUT_READABLE_EULER
+    // display Euler angles in degrees
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetEuler(euler, &q);
     Serial.print("euler\t");
@@ -253,11 +228,95 @@ void loop() {
 #endif
 
 #ifdef OUTPUT_READABLE_YAWPITCHROLL
+    // display Euler angles in degrees
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-    Serial.print("ypr\t");
-    Serial.println(ypr[0] * 180 / M_PI);
+    //            Serial.print("y");
+    //            Serial.println(ypr[0] * 180/M_PI);
+    //            Serial.print("\t");
+    //            Serial.print(ypr[1] * 180/M_PI);
+    //            Serial.print("\t");
+    //            Serial.println(ypr[2] * 180/M_PI);
 #endif
+    /*
+      Serial.print("y");
+      Serial.print(ypr[0] * 180 / M_PI);
+      Serial.print("s");
+      Serial.print(deltatime);  ///*0.0000000625 second
+      Serial.print("e");
+      Serial.print((int)Encoder);
+      Serial.print("\n");
+*/
+    if (rising_edge == true) {
+      if (((T1Ovs2)*25 + (T1Ovs2)*5 / 10 + TCNT2 / 10) > 40000) {
+        deltatime = (volatile uint16_t)0;
+        rising_edge = false;
+      }
+    }
+    last_Encoder = Encoder;
+  }
+}
+
+/* Control servo */
+void servoControl(int dat1) {
+  direccion.attach(10);
+  if (dat1 >= max_izquierda && dat1 <= max_derecha) {  // condicion para no pasar los limites del servo y evitar forzarlo
+    direccion.write(dat1);                             // envia el angulo al servo
+  }
+}
+/* Control lights */
+/*L20C32+16+8+4+2+1, 32+16/16=2+1 -> R , 8+4/4=2+1 -> G, 2+1 -> B : WHITE=63, RED=48, YELLOW=56,OR 60*/
+void lightControl(int inputLight) {
+
+  int LF[] = {0,1};
+  int RF[] = {3,4};
+
+  int RB[] = {5,6};
+  int LB[] = {8,9};
+
+  if (inputLight == 0){// off
+    for (int i = 0; i < 10; i++)
+      pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //disable
+  } else if (inputLight == 1) {// left
+    for (int i = 0; i < 10; i++)
+      pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //off
+    //lights left on
+    pixels.setPixelColor(LF[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LF[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[1], pixels.Color(255, 80, 0));  //yellow
+
+  } else if (inputLight == 2) {// right
+    for (int i = 0; i < 10; i++)
+      pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //off
+    //lights right on
+    pixels.setPixelColor(RF[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RF[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[1], pixels.Color(255, 80, 0));  //yellow
+
+  } else if (inputLight == 3) {// stop
+    for (int i = 0; i < 10; i++)
+      pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //off
+    //lights back
+    pixels.setPixelColor(RB[0], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(RB[1], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(LB[0], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(LB[1], pixels.Color(255, 0, 0));  //red
+
+  } else if (inputLight == 4) {
+    
+    for (int i = 0; i < 10; i++)
+      pixels.setPixelColor(i, pixels.Color(255, 0, 0));  //red
+
+  }
+  pixels.show();  // This sends the updated pixel color to the hardware.
+}
+
+void speedControl(int dat2) {
+  dat22 = dat2 + 90;
+  if (dat22 >= (0) && dat22 <= 180) {  // condicion para no pasar los limites del motor y evitar forzarlo
+    ESC.write(dat22);                  // envia la velocidad al motor
   }
 }
