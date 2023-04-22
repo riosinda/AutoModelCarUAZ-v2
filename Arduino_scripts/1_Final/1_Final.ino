@@ -12,7 +12,7 @@ Servo direccion;
 MPU6050 mpu;
 
 #define PIN 8
-#define NUMPIXELS 10
+#define NUMPIXELS 21
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -269,46 +269,83 @@ void servoControl(int dat1) {
 /*L20C32+16+8+4+2+1, 32+16/16=2+1 -> R , 8+4/4=2+1 -> G, 2+1 -> B : WHITE=63, RED=48, YELLOW=56,OR 60*/
 void lightControl(int inputLight) {
 
-  int LF[] = {0,1};
-  int RF[] = {3,4};
+  int LF[] = {0,1,2,3};
+  int RF[] = {6,7,8,9};
 
-  int RB[] = {5,6};
-  int LB[] = {8,9};
+  int RB[] = {10,11,12,13,14};
+  int LB[] = {16,17,18,19,20};
 
   if (inputLight == 0){// off
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 21; i++)
       pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //disable
   } else if (inputLight == 1) {// left
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 21; i++)
       pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //off
     //lights left on
     pixels.setPixelColor(LF[0], pixels.Color(255, 80, 0));  //yellow
     pixels.setPixelColor(LF[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LF[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LF[3], pixels.Color(255, 80, 0));  //yellow
     pixels.setPixelColor(LB[0], pixels.Color(255, 80, 0));  //yellow
     pixels.setPixelColor(LB[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[3], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[4], pixels.Color(255, 80, 0));  //yellow
 
   } else if (inputLight == 2) {// right
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 21; i++)
       pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //off
     //lights right on
     pixels.setPixelColor(RF[0], pixels.Color(255, 80, 0));  //yellow
     pixels.setPixelColor(RF[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RF[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RF[3], pixels.Color(255, 80, 0));  //yellow
     pixels.setPixelColor(RB[0], pixels.Color(255, 80, 0));  //yellow
     pixels.setPixelColor(RB[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[3], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[4], pixels.Color(255, 80, 0));  //yellow
 
   } else if (inputLight == 3) {// stop
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 21; i++)
       pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //off
     //lights back
     pixels.setPixelColor(RB[0], pixels.Color(255, 0, 0));  //red
     pixels.setPixelColor(RB[1], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(RB[2], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(RB[3], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(RB[4], pixels.Color(255, 0, 0));  //yellow
     pixels.setPixelColor(LB[0], pixels.Color(255, 0, 0));  //red
     pixels.setPixelColor(LB[1], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(LB[2], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(LB[3], pixels.Color(255, 0, 0));  //red
+    pixels.setPixelColor(LB[4], pixels.Color(255, 0, 0));  //red
 
   } else if (inputLight == 4) {
     
-    for (int i = 0; i < 10; i++)
-      pixels.setPixelColor(i, pixels.Color(255, 0, 0));  //red
+    for (int i = 0; i < 21; i++)
+      pixels.setPixelColor(i, pixels.Color(0, 0, 0));  //red
+    
+    pixels.setPixelColor(LF[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LF[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LF[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LF[3], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[3], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(LB[4], pixels.Color(255, 80, 0));  //yellow
+
+    pixels.setPixelColor(RF[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RF[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RF[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RF[3], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[0], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[1], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[2], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[3], pixels.Color(255, 80, 0));  //yellow
+    pixels.setPixelColor(RB[4], pixels.Color(255, 80, 0));  //yellow
+
 
   }
   pixels.show();  // This sends the updated pixel color to the hardware.
